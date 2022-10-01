@@ -143,6 +143,7 @@
             "R.J. VOSSEN": "Raisa",
             "HR AHF PALS": "Floris",
             "K.W. PUNT": "Kristan",
+            "M.H. Luten": "Martin",
         }
 
         var externeDebiteuren = {
@@ -166,13 +167,6 @@
         var grootboek = {
             "KOSTEN":"Bankkosten"
         }
-
-        // Om Drôleanten te upper casen
-        // var stringetje = '';
-        // for (var name in Drôleanten) {
-        //     stringetje += `"${name.toUpperCase()}":"${Drôleanten[name]}",\n`;
-        // }
-        // console.log(stringetje);
 
         var tegenpartij = '';
         var oldmapping = []; //Insert index of Droleheaders and get index of the old array.
@@ -332,14 +326,18 @@
 
         function ifNNWL(row) {
             string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
-            return (string.includes('Niet nodig') || string.includes('compost') || string.includes('kompost')
-                    || string.includes('HENKES: wie') || string.includes('donatie'));
+            return (string.toUpperCase().includes('Niet nodig'.toUpperCase())
+                || string.toUpperCase().includes('compost'.toUpperCase())
+                || string.toUpperCase().includes('kompost'.toUpperCase())
+                    || string.toUpperCase().includes('HENKES: wie'.toUpperCase())
+                    || string.toUpperCase().includes('donatie'.toUpperCase()));
         }
 
         function changeIfNNWL(row){
             if(ifNNWL(row)){
                 partijLocatie = "Grootboek";
-                row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Reunistenbijdrage ${tegenpartij}`;
+                row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Reunistenbijdrage ${tegenpartij ?
+                    tegenpartij :  row[oldmapping[DrôleHeadersIndex['Debiteur']]]}`;
                 tegenpartij = 'Niet nodig wel leuk';
                 row[row.length - 1]['NNWL'] = true;
             }
@@ -407,6 +405,12 @@
                 partijLocatie = "Grootboek";
                 row[oldmapping[DrôleHeadersIndex['Debiteur']]] = tikkieValue[2].substring(5);
                 row[oldmapping[2]] = 'Tikkie: '+tikkieValue[1].substring(1);
+                row[row.length - 1]['tikkie'] = true;
+            } else if (row[oldmapping[5]].includes('Betaalverzoek Rabobank')) {
+                var tikkieValue = row[oldmapping[2]].split(':');
+                partijLocatie = "Grootboek";
+                row[oldmapping[DrôleHeadersIndex['Debiteur']]] = tikkieValue[1];
+                row[oldmapping[2]] = 'Tikkie: '+tikkieValue[2];
                 row[row.length - 1]['tikkie'] = true;
             }
             return row;
