@@ -128,7 +128,7 @@
             "HR SH SCHOENMAKER":"Steven",
             "HR MT VAN LIEMT": "Mathijs",
             "MARK DE WAARD": "Mark",
-	    
+            "HR MJ VAN EIJSDEN": "Marco",
             "D.O.B. DE BRABANDER":"Daan",
             "MW SC STIGT":"Sophie",
             "ECA KOOLEN":"Wieke",
@@ -139,7 +139,7 @@
             "MW D VAN DE MEENT": "Daniek",
             "TF HOLLEBOOM": "Thijn",
             "R.J. VOSSEN": "Raisa",
-            "HR AHF PALS": "Thijn",
+            "HR AHF PALS": "Floris",
             "K.W. PUNT": "Kristan",
         }
 
@@ -313,11 +313,11 @@
 
         function changeIfContributie(row){
             var string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
-                if(string.includes('contributie') || string.includes('Contributie')
+                if(!ifNNWL(row) && (string.includes('contributie') || string.includes('Contributie')
                     || string.includes('Tom dispuut') || string.includes('Meer Henkes.')
                     || string.includes('drink er een op') || string == ''
                     || (row[row.length - 1]['Drôleant'] == true
-                        && parseFloat(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) > 0)){
+                        && parseFloat(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) > 0))){
                     if(!row[row.length - 1]['tikkie']){
                         row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Contributie ${tegenpartij}`;
                         row[row.length - 1]['contributie'] = true;
@@ -328,9 +328,13 @@
             return row;
         }
 
+        function ifNNWL(row) {
+            string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
+            return (string.includes('Niet nodig') || string.includes('HENKES: wie') || string.includes('donatie'));
+        }
+
         function changeIfNNWL(row){
-            var string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
-            if(string.includes('Niet nodig') || string.includes('HENKES: wie') || string.includes('donatie')){
+            if(ifNNWL(row)){
                 partijLocatie = "Grootboek";
                 row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Reunistenbijdrage ${tegenpartij}`;
                 tegenpartij = 'Niet nodig wel leuk';
@@ -442,20 +446,20 @@
 
         function changeTegenpartij(row){
             tegenpartij = row[oldmapping[DrôleHeadersIndex['Debiteur']]];
-            string = tegenpartij.toUpperCase();
-            if(typeof Drôleanten[string] != 'undefined') {
+            uppercase = tegenpartij.toUpperCase();
+            if(typeof Drôleanten[uppercase] != 'undefined') {
                 partijLocatie = 'Debiteur';
                 row[row.length - 1]['Drôleant'] = true;
-                tegenpartij = Drôleanten[string];
-            } else if(typeof externeDebiteuren[string] != 'undefined') {
+                tegenpartij = Drôleanten[uppercase];
+            } else if(typeof externeDebiteuren[uppercase] != 'undefined') {
                 partijLocatie = 'Debiteur';
-                tegenpartij = externeDebiteuren[string];
-            } else if(typeof crediteuren[string] != 'undefined'){
+                tegenpartij = externeDebiteuren[uppercase];
+            } else if(typeof crediteuren[uppercase] != 'undefined'){
                 partijLocatie = 'Crediteur';
-                tegenpartij = crediteuren[string];
-            } else if(typeof grootboek[string] != 'undefined'){
+                tegenpartij = crediteuren[uppercase];
+            } else if(typeof grootboek[uppercase] != 'undefined'){
                 partijLocatie = 'Grootboek';
-                tegenpartij = grootboek[string];
+                tegenpartij = grootboek[uppercase];
             } else {
                 row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `${tegenpartij}, ${row[oldmapping[DrôleHeadersIndex['Omschrijving']]]}`
                 tegenpartij = ``;
