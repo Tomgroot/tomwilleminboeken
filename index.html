@@ -215,7 +215,9 @@
 
                             if(partijLocatie == DrôleHeaders[column]){
                                 celValue = tegenpartij;
-                            } else if(DrôleHeaders[column] == 'Grootboek' || DrôleHeaders[column] == 'Debiteur' || DrôleHeaders[column] == 'Crediteur'){
+                            } else if(DrôleHeaders[column] == 'Grootboek'
+                                || DrôleHeaders[column] == 'Debiteur'
+                                || DrôleHeaders[column] == 'Crediteur'){
                                 celValue = '';
                             }
 
@@ -293,7 +295,8 @@
                         extraInvoiceEmptyRow[colnr] = array[row][colnr];
                     }
 
-                    extraInvoiceRow[DrôleHeadersIndex['Bedrag']] = parseFloat(extraInvoiceEmptyRow[DrôleHeadersIndex['Bedrag']]) * -1;
+                    extraInvoiceRow[DrôleHeadersIndex['Bedrag']] =
+                        parseFloat(extraInvoiceEmptyRow[DrôleHeadersIndex['Bedrag']]) * -1;
                     extraInvoiceRow[DrôleHeadersIndex['Grootboek']] = '';
                     extraInvoiceEmptyRow[DrôleHeadersIndex['Crediteur']] = '';
 
@@ -310,7 +313,11 @@
 
         function changeIfContributie(row){
             var string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
-                if(string.includes('contributie') || string.includes('Contributie') || string.includes('Tom dispuut') || string.includes('Meer Henkes.') || string.includes('drink er een op') || string == '' || (row[row.length - 1]['Drôleant'] == true && parseFloat(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) > 0)){
+                if(string.includes('contributie') || string.includes('Contributie')
+                    || string.includes('Tom dispuut') || string.includes('Meer Henkes.')
+                    || string.includes('drink er een op') || string == ''
+                    || (row[row.length - 1]['Drôleant'] == true
+                        && parseFloat(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) > 0)){
                     if(!row[row.length - 1]['tikkie']){
                         row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Contributie ${tegenpartij}`;
                         row[row.length - 1]['contributie'] = true;
@@ -407,7 +414,9 @@
         function changeIfVolgnummer(row){
             var string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
             if(string != undefined){
-                if((string.includes('Factuur') || string.includes('factuur') || RegExp('[0-9]{5,}').test(string) || RegExp('[A-Z]{2,3}[0-9]{4,}[A-Z]{2}').test(string)) && parseInt(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) < 0 && partijLocatie != 'Grootboek'){
+                if((string.includes('Factuur') || string.includes('factuur') || RegExp('[0-9]{5,}').test(string)
+                    || RegExp('[A-Z]{2,3}[0-9]{4,}[A-Z]{2}').test(string))
+                    && parseInt(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) < 0 && partijLocatie != 'Grootboek'){
                     volgnr['F'] += 1;
                     row[oldmapping[DrôleHeadersIndex['Volgnummer']]] = `F${volgnr['F']}`;
                     row[row.length - 1]['factuur'] = true;
@@ -419,7 +428,9 @@
                     } else {
                         row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = "Drank op de kroeg";
                     }
-                } else if(string.includes('Declaratie') || string.includes('declaratie') || (row[row.length - 1]['Drôleant'] == true && parseInt(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) < 0)){
+                } else if(string.includes('Declaratie') || string.includes('declaratie')
+                    || (row[row.length - 1]['Drôleant'] == true
+                        && parseInt(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) < 0)){
                     volgnr['D'] += 1;
                     row[oldmapping[DrôleHeadersIndex['Volgnummer']]] = `D${volgnr['D']}`;
                     row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Declaratie van ${tegenpartij}`;
