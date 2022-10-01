@@ -104,6 +104,7 @@
             "TF HOLLEBOOM":"Thijn",
             "IRENE VD BURGT":"Irene",
             "GA VALKENBURG":"Giep",
+            "G.A. VALKENBURG":"Giep",
             "J.A.F. LUKKEZEN":"Janneke",
             "L. KUIJPERS":"Lex",
             "HR N BERENDS":"Luuk",
@@ -330,7 +331,8 @@
 
         function ifNNWL(row) {
             string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
-            return (string.includes('Niet nodig') || string.includes('HENKES: wie') || string.includes('donatie'));
+            return (string.includes('Niet nodig') || string.includes('compost') || string.includes('kompost')
+                    || string.includes('HENKES: wie') || string.includes('donatie'));
         }
 
         function changeIfNNWL(row){
