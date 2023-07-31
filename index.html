@@ -26,6 +26,10 @@
     <script src="inc/jquery-3.3.1.slim.min.js"></script>
     <script src="inc/popper.min.js"></script>
     <script src="inc/bootstrap.min.js"></script>
+    <script src="NNWL.js"></script>
+    <script src="leden.js"></script>
+    <script src="crediteuren.js"></script>
+    <script src="externe_debiteuren.js"></script>
     <script lang="javascript" src="inc/xlsx.full.min.official.js"></script>
     <script>
 
@@ -77,6 +81,7 @@
             'Debiteur',
             'Crediteur'
         ];
+
         var RaboHeaders = {
             'Datum': 0,
             'Oorspr bedrag': 1,
@@ -86,83 +91,6 @@
             'Naam tegenpartij': 5,
             'Omschrijving-3': 6
         };
-
-        var Drôleanten = {
-            "M.H. HOEKMAN":"Thijs",
-            "C.T.W. VAN KEMPEN":"Claudia",
-            "HR K BOIN":"Kazu",
-            "ZWIJNENBURG R B":"Rebecca",
-            "R.B. ZWIJNENBURG":"Rebecca",
-            "S.C. BREUKINK":"Sander",
-            "HR M HORSTINK":"Milan",
-            "GROOT T W":"Tom",
-            "TW GROOT":"Tom",
-            "T.W. GROOT":"Tom",
-            "V.S. WENTZEL":"Vera",
-            "T VAN DER HEK":"Tim",
-            "JASPER BORREMAN":"Jasper",
-            "R.J. VOSSEN":"Raisa",
-            "TF HOLLEBOOM":"Thijn",
-            "IRENE VD BURGT":"Irene",
-            "GA VALKENBURG":"Giep",
-            "G.A. VALKENBURG":"Giep",
-            "J.A.F. LUKKEZEN":"Janneke",
-            "L. KUIJPERS":"Lex",
-            "HR N BERENDS":"Luuk",
-            "HR E J L VAN DEN OORD":"Evert",
-            "MW IL VAN DER BURGT":"Irene",
-            "HR M NOORDHOF":"Martijn",
-            "HR N NIEUWENHUISEN":"Lars",
-            "J.M. BINK":"Sjoelbak",
-            "S.R. DERMAUX":"Stefan",
-            "FERD VAN BERGEIJK":"Ferd",
-            "J VALKENBURG":"Jan",
-            "M BEERENS":"Michiel",
-            "I.G.S. VAN HOOIJDONK":"Ivo",
-            "J. BEUZE":"Jasper",
-            "B.T.J. HORREVORTS":"Bart",
-            "H.M. BAKX":"Hessel",
-            "MAAIKE DE KOSTER":"Maaike",
-            "MW AJ BREIJ":"Annebel",
-            "S.A.M. WINDHORST":"Sam",
-            "MW M COX":"Maudi",
-            "MAX HAGE":"Max",
-            "HR SH SCHOENMAKER":"Steven",
-            "HR MT VAN LIEMT": "Mathijs",
-            "MARK DE WAARD": "Mark",
-            "HR MJ VAN EIJSDEN": "Marco",
-            "D.O.B. DE BRABANDER":"Daan",
-            "MW SC STIGT":"Sophie",
-            "ECA KOOLEN":"Wieke",
-            "M. HEINTZE": "Merijn",
-            "A.A.N. GIJSBERS": "Olivier",
-            "M. HEINTZE": "Merijn",
-            "L.M.C. SMITS": "Lieke",
-            "MW D VAN DE MEENT": "Daniek",
-            "TF HOLLEBOOM": "Thijn",
-            "R.J. VOSSEN": "Raisa",
-            "HR AHF PALS": "Floris",
-            "K.W. PUNT": "Kristan",
-            "M.H. Luten": "Martin",
-        }
-
-        var externeDebiteuren = {
-            "HET DISPUUT PEGASUS":"Pegasus",
-            "DARFINKAR":"Darfinkar",
-            "DISP. LA DONNA E MOBILE":"Mobile"
-        }
-
-        var crediteuren = {
-            "STICHTING EXPLOITATIE SOCIETEIT":"SSRE",
-            "ALGEMENE STUDENTENVERENIGING SSRE":"SSRE",
-            "STICHTING EXPLOITATIE EINDHOVEN":"SSRE",
-            "CANDOR":"Candor",
-            "HET DISPUUT ASTARTE":"Astarte",
-            "HET DISPUUT WASSADAMO":"Wassadamo",
-            "TUE CREDITEURENADMINISTRATIE":"TU/e",
-            "A.S.V. SSRE INZAKE AB-VERENIGING":"SSRE",
-            "HET ILLUSTERE DISP QUARE":"Kwer"
-        }
 
         var grootboek = {
             "KOSTEN":"Bankkosten"
@@ -314,6 +242,9 @@
                     || string.includes('drink er een op') || string == ''
                     || (row[row.length - 1]['Drôleant'] == true
                         && parseFloat(row[oldmapping[DrôleHeadersIndex['Bedrag']]]) > 0))){
+                    if (tegenpartij === '') {
+                        tegenpartij = row[oldmapping[DrôleHeadersIndex['Debiteur']]];
+                    }
                     if(!row[row.length - 1]['tikkie']){
                         row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `Contributie ${tegenpartij}`;
                         row[row.length - 1]['contributie'] = true;
@@ -325,12 +256,14 @@
         }
 
         function ifNNWL(row) {
+            var debiteur = row[oldmapping[DrôleHeadersIndex['Debiteur']]];
             string = row[oldmapping[DrôleHeadersIndex['Omschrijving']]];
             return (string.toUpperCase().includes('Niet nodig'.toUpperCase())
                 || string.toUpperCase().includes('compost'.toUpperCase())
                 || string.toUpperCase().includes('kompost'.toUpperCase())
                     || string.toUpperCase().includes('HENKES: wie'.toUpperCase())
-                    || string.toUpperCase().includes('donatie'.toUpperCase()));
+                    || string.toUpperCase().includes('donatie'.toUpperCase())
+                    || findRekening(debiteur, NNWL) !== undefined);
         }
 
         function changeIfNNWL(row){
@@ -453,20 +386,23 @@
 
         function changeTegenpartij(row){
             tegenpartij = row[oldmapping[DrôleHeadersIndex['Debiteur']]];
-            uppercase = tegenpartij.toUpperCase();
-            if(typeof Drôleanten[uppercase] != 'undefined') {
+            if(typeof findRekening(tegenpartij, Drôleanten) != 'undefined') {
                 partijLocatie = 'Debiteur';
                 row[row.length - 1]['Drôleant'] = true;
-                tegenpartij = Drôleanten[uppercase];
-            } else if(typeof externeDebiteuren[uppercase] != 'undefined') {
+                tegenpartij = findRekening(tegenpartij, Drôleanten).naam;
+            } else if(typeof findRekening(tegenpartij, NNWL) != 'undefined') {
                 partijLocatie = 'Debiteur';
-                tegenpartij = externeDebiteuren[uppercase];
-            } else if(typeof crediteuren[uppercase] != 'undefined'){
+                row[row.length - 1]['Drôleant'] = true;
+                tegenpartij = findRekening(tegenpartij, NNWL).naam;
+            } else if(typeof findRekening(tegenpartij, externeDebiteuren) != 'undefined') {
+                partijLocatie = 'Debiteur';
+                tegenpartij = findRekening(tegenpartij, externeDebiteuren).naam;
+            } else if(typeof findRekening(tegenpartij, crediteuren) != 'undefined'){
                 partijLocatie = 'Crediteur';
-                tegenpartij = crediteuren[uppercase];
-            } else if(typeof grootboek[uppercase] != 'undefined'){
+                tegenpartij = findRekening(tegenpartij, crediteuren).naam;
+            } else if(typeof grootboek[tegenpartij.toUpperCase()] != 'undefined'){
                 partijLocatie = 'Grootboek';
-                tegenpartij = grootboek[uppercase];
+                tegenpartij = grootboek[tegenpartij.toUpperCase()];
             } else {
                 row[oldmapping[DrôleHeadersIndex['Omschrijving']]] = `${tegenpartij}, ${row[oldmapping[DrôleHeadersIndex['Omschrijving']]]}`
                 tegenpartij = ``;
@@ -474,6 +410,15 @@
             return row
         }
 
+        function findRekening(name, collection) {
+            name = name.toUpperCase();
+            for (const i in collection) {
+                if (name === collection[i].rekeninghouder.toUpperCase() || name === collection[i].naam.toUpperCase()) {
+                    return collection[i]
+                }
+            }
+            return undefined;
+        }
 
         function csvStringToArray(string){
             if(string.startsWith("Datum")){
